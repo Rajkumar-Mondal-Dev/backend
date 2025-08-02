@@ -1,9 +1,17 @@
 const mongoose = require('mongoose')
+require('dotenv').config()
 
 const connectDB = async () => {
-  mongoose.connect(
-    'mongodb+srv://raj:Rajk2001%40@rajkumar-mondal-cluster.ewp9x7h.mongodb.net/devTinder'
-  )
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      dbName: 'devTinder',
+    })
+
+    console.log('Database connected...')
+  } catch (error) {
+    console.error('Database connection failed:', error)
+    throw error
+  }
 }
 
-module.exports = connectDB;
+module.exports = connectDB
