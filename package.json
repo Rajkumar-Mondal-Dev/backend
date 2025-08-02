@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "Rajkumar Mondal",
   "license": "ISC",
@@ -16,5 +16,10 @@
   },
   "devDependencies": {
     "jest": "^30.0.5"
+  },
+  "jest": {
+    "testMatch": [
+      "**/?(*.)+(test).[jt]s?(x)"
+    ]
   }
 }
