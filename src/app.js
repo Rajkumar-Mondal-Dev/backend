@@ -1,67 +1,98 @@
-const express = require('express');
-const connectDB = require('./config/database');
-const User = require('./models/user');
+const express = require('express')
+const connectDB = require('./config/database')
+const User = require('./models/user')
+const ValidateUserData = require('./utils/uservalidators')
+const bcrypt = require('bcrypt')
 
-const app = express();
-app.use(express.json());
+const app = express()
+app.use(express.json())
 
 // SignUp
 app.post('/signup', async (req, res) => {
   try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).send('User added successfully');
+    // Validate
+    ValidateUserData(req)
+    const { firstName, lastName, emailId, password, age, gender, skills } = req.body
+    const passwordHash = bcrypt.hashSync(password, 10)
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: passwordHash,
+      age,
+      gender,
+      skills,
+    })
+    await user.save()
+    res.status(201).send('User added successfully')
   } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).send('Email already exists');
-    }
-    res.status(500).send('Something went wrong!');
+    res.status(500).send('Error: ' + error.message)
   }
-});
+})
 
 // Get User by Email
 app.get('/user', async (req, res) => {
   try {
-    const { emailId } = req.query;
-    const users = await User.find({ emailId });
+    const { emailId } = req.query
+    const users = await User.find({ emailId })
     if (users.length) {
-      res.send(users);
+      res.send(users)
     } else {
-      res.status(404).send('User not found');
+      res.status(404).send('User not found')
     }
   } catch (error) {
-    res.status(500).send('Something went wrong');
+    res.status(500).send('Error: ' + error.message)
   }
-});
+})
 
 // Delete User by ID
 app.delete('/user', async (req, res) => {
   try {
-    await User.findByIdAndDelete(req.body.userId);
-    res.send('User deleted successfully');
+    await User.findByIdAndDelete(req.body.userId)
+    res.send('User deleted successfully')
   } catch (error) {
-    res.status(500).send('Something went wrong');
+    res.status(500).send('Error: ' + error.message)
   }
-});
+})
 
 // Update User by ID
 app.patch('/user', async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.body.userId, req.body);
-    res.send('User info updated successfully');
+    const ALLOWED_UPDATE_FIELDS = [
+      'userId',
+      'firstName',
+      'lastName',
+      'age',
+      'skills',
+    ]
+    const data = req.body
+    const isUpdateAllowed = Object.keys(data).every((val) =>
+      ALLOWED_UPDATE_FIELDS.includes(val)
+    )
+    if (!isUpdateAllowed) {
+      throw new Error('Update not allowed')
+    }
+    if (data?.skills.length > 10) {
+      throw new Error('Maximum 10 skills are allowed')
+    }
+    const user = await User.findByIdAndUpdate(req.body.userId, data, {
+      returnDocument: 'after',
+      runValidators: true,
+    })
+    res.send(user)
   } catch (error) {
-    res.status(500).send('Something went wrong');
+    res.status(500).send('Error: ' + error.message)
   }
-});
+})
 
 // Connect DB and Start Server
-(async () => {
+;(async () => {
   try {
-    await connectDB();
+    await connectDB()
     app.listen(5000, () => {
-      console.log('Server is running on port 5000');
-    });
+      console.log('Server is running on port 5000')
+    })
   } catch (err) {
-    console.error('Failed to start server due to DB connection error');
+    console.error('Failed to start server due to DB connection error')
   }
-})();
+})()
