@@ -1,11 +1,11 @@
-const validators = require('validator')
+const validators = require('validator');
 
 const validateUserData = (req) => {
   const { firstName, lastName } = req.body
 
   if (!firstName || !lastName) {
-    throw new Error('Please provide name')
+    throw new Error('Please provide name');
   }
 }
 
-module.exports = validateUserData
+module.exports = validateUserData;
