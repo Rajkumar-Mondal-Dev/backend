@@ -4,9 +4,7 @@ const User = require('../models/user');
 const ValidateUserData = require('../utils/uservalidators');
 const bcrypt = require('bcrypt');
 
-
-// SignUp
-authRouter.post('/signup', async (req, res) => {
+authRouter.post("/signup", async (req, res) => {
   try {
     // Validate
     ValidateUserData(req)
@@ -28,8 +26,7 @@ authRouter.post('/signup', async (req, res) => {
   }
 });
 
-// Login
-authRouter.post('/login', async (req, res) => {
+authRouter.post("/login", async (req, res) => {
   try {
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId });
@@ -54,6 +51,14 @@ authRouter.post('/login', async (req, res) => {
   } catch (error) {
     res.status(400).send('Error: ' + error.message);
   }
+})
+
+authRouter.post("/logout", async (req, res) => {
+  res
+    .cookie('access_token', null, {
+      expires: new Date(Date.now())
+    })
+    .send('Logout successfully');
 })
 
 module.exports = authRouter;
