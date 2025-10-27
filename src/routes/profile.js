@@ -44,7 +44,7 @@ profileRouter.patch("/profile/password", AuthMiddleware, async (req, res) => {
 
     if (isCredentialsValid) {
       user.password = bcrypt.hashSync(newPassword, 10);
-      user.save();
+      await user.save();
       res.json({
         message: "Password updated successfully",
         data: user
