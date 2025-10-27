@@ -1,5 +1,3 @@
-const validators = require('validator');
-
 const validateUserData = (req) => {
   const { firstName, lastName } = req.body
 

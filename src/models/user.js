@@ -57,4 +57,5 @@ userSchema.methods.isCredentialsValid = async function (passwordInputByUser) {
   return await bcrypt.compare(passwordInputByUser, this.password);
 }
 
-module.exports = mongoose.model('User', userSchema)
+const User = mongoose.model("User", userSchema);
+module.exports = User;
